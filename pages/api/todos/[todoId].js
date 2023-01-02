@@ -1,6 +1,7 @@
 import { todos } from "../../../data/todos"
 
 export default function handler(req, res) {
+    console.log(req.query);
     const { todoId } = req.query
 
     if (req.method === 'GET') {
@@ -14,5 +15,11 @@ export default function handler(req, res) {
         todos.splice(index, 1)
 
         res.status(200).json(deletedTodo)
+    } else if (req.method === 'PUT') {
+        const completedTodo = todos.find((todo) => todo.id === parseInt(todoId))
+
+        completedTodo.completed ? completedTodo.completed = false : completedTodo.completed = true
+
+        res.status(200).json(completedTodo)
     }
 }
