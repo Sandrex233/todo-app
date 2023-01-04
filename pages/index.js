@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { AiOutlineClose } from 'react-icons/ai'
+import { BsSun, BsMoon } from 'react-icons/bs'
 
 const TodoPage = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [todos, setTodos] = useState([])
     const [todo, setTodo] = useState('');
     const [scrollbar, setScrollbar] = useState(false)
-    // const [theme, setTheme] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [theme, setTheme] = useState(false);
 
     // fetching todos
     useEffect(() => {
@@ -67,9 +69,9 @@ const TodoPage = () => {
         makeRequest()
     }
 
-    // const themeToggle = () => {
-    //     setTheme(!theme)
-    // }
+    const handleTheme = () => {
+        setTheme(!theme)
+    }
 
     const completeTodo = async (todoId) => {
         const response = await fetch(`/api/todos/${todoId}`, {
@@ -112,8 +114,24 @@ const TodoPage = () => {
         setScrollbar(false)
     }
 
+    const handleButtonIndex = index => {
+        setCurrentIndex(index)
+    }
+
+    const handlefitlerTodos = () => {
+        if (currentIndex === 1) {
+            return todos.filter(val => val.completed !== true)
+        } else if (currentIndex === 2) {
+            return todos.filter(val => val.completed === true)
+        } else {
+            return todos
+        }
+    }
+    // console.log(todos.filter(val => val.completed === true).length);
+
     return (
-        <div className='bg-[#161722] min-h-screen bg-contain flex justify-center items-center flex-col'>
+        <div className={`${theme ? 'bg-white' : 'bg-[#161722]'} min-h-screen bg-contain flex justify-center items-center flex-col`}>
+            <div className='mb-5' onClick={handleTheme} >{theme ? <BsMoon size={50} color='black' /> : <BsSun size={50} color='white' />}</div>
             <div className='flex flex-row'>
                 <input
                     type="text"
@@ -138,7 +156,7 @@ const TodoPage = () => {
                     ${todos.length >= 8 ? 'overflow-y-scroll scrollbar scrollbar-thumb-rounded-md scrollbar-track-[#393a4c]' : ''}
                     ${scrollbar ? "scrollbar-thumb-[#aaacb8]" : "scrollbar-thumb-[#4d5066]"} px-4 bg-[#25273c] rounded-sm shadow-2xl`}
             >
-                {todos.map((todo) => {
+                {handlefitlerTodos().map((todo) => {
                     return (
                         <div key={todo.id} className='border-b py-5 border-[#393a4c] justify-between flex text-[#d2d3db] max-w-xl font-normal'>
                             <div className={`cursor-pointer ${todo.completed ? "line-through" : ''}`} onClick={() => completeTodo(todo.id)}>
@@ -155,6 +173,12 @@ const TodoPage = () => {
                 <h2 className='text-slate-50'>{todos.length - filteredTodos.length} items left</h2>
                 <button className='text-white' onClick={deleteCompletedTodos}>clear completed todos</button>
             </div>
+            <div className='space-x-5 text-white'>
+                <button onClick={() => handleButtonIndex(0)} className={currentIndex === 0 ? "text-blue-600" : ''}>all</button>
+                <button onClick={() => handleButtonIndex(1)} className={currentIndex === 1 ? "text-blue-600" : ''}>active</button>
+                <button onClick={() => handleButtonIndex(2)} className={currentIndex === 2 ? "text-blue-600" : ''}>completed</button>
+            </div>
+
         </div>
     )
 }
