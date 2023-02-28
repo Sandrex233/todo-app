@@ -1,7 +1,6 @@
 import { todos } from "../../../data/todos"
 
 export default function handler(req, res) {
-    console.log(req.query);
     const { todoId } = req.query
 
     if (req.method === 'GET') {

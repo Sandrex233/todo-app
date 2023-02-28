@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { AiOutlineClose } from 'react-icons/ai'
 import { BsSun, BsMoon } from 'react-icons/bs'
+import checkIcon from '../assets/images/icon-check.svg'
+import Image from 'next/image'
+
 
 const TodoPage = () => {
     const [isLoading, setIsLoading] = useState(true)
@@ -9,6 +12,10 @@ const TodoPage = () => {
     const [scrollbar, setScrollbar] = useState(false)
     const [currentIndex, setCurrentIndex] = useState(0);
     const [theme, setTheme] = useState(false);
+
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [hoverIndex, setHoverIndex] = useState(null);
+
 
     // fetching todos
     useEffect(() => {
@@ -54,9 +61,6 @@ const TodoPage = () => {
             makeRequest()
         }
     }
-
-
-
 
     const deleteTodo = async (todoId) => {
         const response = await fetch(`/api/todos/${todoId}`, {
@@ -127,7 +131,31 @@ const TodoPage = () => {
             return todos
         }
     }
-    // console.log(todos.filter(val => val.completed === true).length);
+
+    const handleDragStart = (e, index) => {
+        // Set the data being dragged and the index of the item being dragged
+        e.dataTransfer.setData("index", index);
+        setDraggedIndex(index);
+    };
+
+    const handleDragOver = (e, index) => {
+        e.preventDefault();
+        setHoverIndex(index);
+    };
+
+    const handleDrop = (e, index) => {
+        const oldIndex = e.dataTransfer.getData("index");
+        const newTodos = [...todos];
+        const [draggedItem] = newTodos.splice(oldIndex, 1);
+        newTodos.splice(index, 0, draggedItem);
+        setTodos(newTodos);
+        setHoverIndex(-1);
+    };
+
+    const handleDragEnd = () => {
+        setHoverIndex(-1);
+    };
+
 
     return (
         <div className={`${theme ? 'bg-white' : 'bg-[#161722]'} min-h-screen bg-contain flex justify-center items-center flex-col`}>
@@ -153,18 +181,45 @@ const TodoPage = () => {
                 onMouseDown={handleScrollbarDown}
                 onMouseUp={handleScrollbarUp}
                 className={`mt-4 max-w-md w-[27em]  max-h-[600px] 
-                    ${todos.length >= 8 ? 'overflow-y-scroll scrollbar scrollbar-thumb-rounded-md scrollbar-track-[#393a4c]' : ''}
-                    ${scrollbar ? "scrollbar-thumb-[#aaacb8]" : "scrollbar-thumb-[#4d5066]"} px-4 bg-[#25273c] rounded-sm shadow-2xl`}
+                ${todos.length >= 8 ? 'overflow-y-scroll scrollbar scrollbar-thumb-rounded-md scrollbar-track-[#393a4c]' : ''}
+                scrollbar-thumb-[#4d5066] px-4 bg-[#25273c] rounded-sm shadow-2xl`}
             >
-                {handlefitlerTodos().map((todo) => {
+                {handlefitlerTodos().map((todo, index) => {
                     return (
-                        <div key={todo.id} className='border-b py-5 border-[#393a4c] justify-between flex text-[#d2d3db] max-w-xl font-normal'>
-                            <div className={`cursor-pointer ${todo.completed ? "line-through" : ''}`} onClick={() => completeTodo(todo.id)}>
-                                {todo.id} {todo.text}
+                        <div
+                            key={todo.id}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, index)}
+                            onDragOver={(e) => handleDragOver(e, index)}
+                            onDrop={(e) => handleDrop(e, index)}
+                            onDragEnd={handleDragEnd}
+                            className={`border-b py-5 border-[#393a4c] justify-between flex text-[#d2d3db] max-w-xl font-normal ${index === hoverIndex ? "bg-gray-600" : ""}`}
+                        >
+                            <div className="flex items-center">
+                                <div
+                                    className={`w-5 h-5 mr-4 rounded-full select-none flex-shrink-0 cursor-pointer ${todo.completed ? 'bg-gradient-to-br from-blue-400 to-purple-500 border-0' : 'border-[#393a4c] border-2'}`}
+                                    onClick={() => completeTodo(todo.id)}
+                                >
+                                    {todo.completed && (
+                                        <div className="flex justify-center items-center w-full h-full">
+                                            <Image
+                                                src={checkIcon}
+                                                alt="checkIcon"
+                                                className="w-3 h-3"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className={`cursor-pointer select-none ${todo.completed ? "line-through" : ''}`} onClick={() => completeTodo(todo.id)}>
+                                    {todo.text}
+                                </div>
                             </div>
                             <button
                                 onClick={() => deleteTodo(todo.id)}
-                                className='ml-5 px-6  text-[#484b6a] text-lg'><AiOutlineClose /></button>
+                                className='ml-5 px-6 text-[#484b6a] text-lg'
+                            >
+                                <AiOutlineClose />
+                            </button>
                         </div>
                     )
                 })}
@@ -178,7 +233,6 @@ const TodoPage = () => {
                 <button onClick={() => handleButtonIndex(1)} className={currentIndex === 1 ? "text-blue-600" : ''}>active</button>
                 <button onClick={() => handleButtonIndex(2)} className={currentIndex === 2 ? "text-blue-600" : ''}>completed</button>
             </div>
-
         </div>
     )
 }
