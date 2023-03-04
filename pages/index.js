@@ -48,7 +48,6 @@ const TodoPage = () => {
                 }
             })
             const data = await response.json()
-            console.log(data)
 
             // clear search filed after todo is submitted
             setTodo("")
@@ -63,7 +62,6 @@ const TodoPage = () => {
             method: "DELETE",
         })
         const data = await response.json()
-        console.log(data)
 
         // make another request after new Todo is submitted
         makeRequest()
@@ -74,7 +72,6 @@ const TodoPage = () => {
             method: "PUT",
         })
         const data = await response.json()
-        console.log(data)
 
         // make another request after new Todo is submitted
         makeRequest()
@@ -94,7 +91,6 @@ const TodoPage = () => {
                 }
             })
             const data = await response.json()
-            console.log(data)
 
             // make another request after new Todo is submitted
             makeRequest()
