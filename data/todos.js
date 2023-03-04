@@ -2,7 +2,7 @@ export const todos = [
     {
         id: 1,
         text: "Complete online JavaScript course",
-        completed: false
+        completed: true
     },
     {
         id: 2,

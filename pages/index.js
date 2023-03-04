@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Reorder } from "framer-motion"
 import { AiOutlineClose } from 'react-icons/ai'
-import { BsSun, BsMoon } from 'react-icons/bs'
 import checkIcon from '../assets/images/icon-check.svg'
 import Image from 'next/image'
+import bgDesktop from '../assets/images/bg-desktop-dark.jpg'
 
 
 const TodoPage = () => {
@@ -12,7 +12,6 @@ const TodoPage = () => {
     const [todo, setTodo] = useState('');
     const [scrollbar, setScrollbar] = useState(false)
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [theme, setTheme] = useState(false);
 
     // fetching todos
     useEffect(() => {
@@ -68,10 +67,6 @@ const TodoPage = () => {
 
         // make another request after new Todo is submitted
         makeRequest()
-    }
-
-    const handleTheme = () => {
-        setTheme(!theme)
     }
 
     const completeTodo = async (todoId) => {
@@ -130,31 +125,30 @@ const TodoPage = () => {
     }
 
     return (
-        <div className={`${theme ? 'bg-white' : 'bg-[#161722]'} min-h-screen bg-contain flex justify-center items-center flex-col`}>
-            <div className='mb-5' onClick={handleTheme} >{theme ? <BsMoon size={50} color='black' /> : <BsSun size={50} color='white' />}</div>
-            <div className='flex flex-row'>
+        <div className={`bg-[#161722] min-h-screen bg-contain flex justify-center items-center flex-col`}
+        >
+            <div className='relative flex flex-row space-x-2 justify-center items-center'>
                 <input
                     type="text"
                     value={todo}
+                    placeholder="Create a new todo..."
                     onChange={(e) => setTodo(e.target.value)}
-                    className='form-control block px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid
-                  border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
+                    className='block px-1 md:px-3 py-3 max-w-md w-[18em] md:w-[24.8em] text-base font-normal text-[#cacdec] bg-clip-padding
+          bg-[#25273c] rounded-md transition ease-in-out m-0 '
                 />
                 <button
                     onClick={submitTodo}
-                    className="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded 
-                    shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800
-                    active:shadow-lg transition duration-150 ease-in-out"
+                    className="border w-7 h-7 rounded-full"
                 >
-                    submit todos
                 </button>
+
             </div>
             <div
                 onMouseDown={handleScrollbarDown}
                 onMouseUp={handleScrollbarUp}
-                className={`mt-4 max-w-md w-[27em]  max-h-[600px] 
+                className={`mt-4 max-w-md w-[20em] md:w-[27em] max-h-[600px] 
                 ${todos.length >= 8 ? 'overflow-y-scroll scrollbar scrollbar-thumb-rounded-md scrollbar-track-[#393a4c]' : ''}
-                scrollbar-thumb-[#4d5066] px-4 bg-[#25273c] rounded-sm shadow-2xl`}
+                scrollbar-thumb-[#4d5066] px-4 bg-[#25273c] rounded-lg shadow-2xl`}
             >
                 <Reorder.Group axis="y" values={todos} onReorder={setTodos}>
                     {handlefitlerTodos().map((todo) => {
@@ -179,7 +173,7 @@ const TodoPage = () => {
                                             </div>
                                         )}
                                     </div>
-                                    <div className={`cursor-pointer select-none ${todo.completed ? "line-through" : ''}`} onClick={() => completeTodo(todo.id)}>
+                                    <div className={`cursor-pointer  select-none ${todo.completed ? "line-through text-[#545672]" : 'text-[#cacdec]'}`} onClick={() => completeTodo(todo.id)}>
                                         {todo.text}
                                     </div>
                                 </div>
@@ -193,16 +187,17 @@ const TodoPage = () => {
                         )
                     })}
                 </Reorder.Group>
+                <div className='text-base py-5 flex justify-between bg-[#25273c] rounded-md shadow-2xl'>
+                    <h2 className='text-[#484b6a]'>{todos.length - filteredTodos.length} items left</h2>
+                    <button className='text-[#484b6a]' onClick={deleteCompletedTodos}>Clear Completed</button>
+                </div>
             </div>
-            <div className='mt-4 max-w-md w-[27em] flex justify-between bg-[#25273c] rounded-md shadow-2xl'>
-                <h2 className='text-slate-50'>{todos.length - filteredTodos.length} items left</h2>
-                <button className='text-white' onClick={deleteCompletedTodos}>clear completed todos</button>
+            <div className='text-base text-[#5e606e] mt-6 py-3 flex items-center justify-center space-x-5 bg-[#25273c] rounded-lg shadow-2xl max-w-md w-[20em] md:w-[27em]'>
+                <button onClick={() => handleButtonIndex(0)} className={`${currentIndex === 0 ? "text-blue-600" : ''} capitalize`}>all</button>
+                <button onClick={() => handleButtonIndex(1)} className={`${currentIndex === 1 ? "text-blue-600" : ''} capitalize`}>active</button>
+                <button onClick={() => handleButtonIndex(2)} className={`${currentIndex === 2 ? "text-blue-600" : ''} capitalize`}>completed</button>
             </div>
-            <div className='space-x-5 text-white'>
-                <button onClick={() => handleButtonIndex(0)} className={currentIndex === 0 ? "text-blue-600" : ''}>all</button>
-                <button onClick={() => handleButtonIndex(1)} className={currentIndex === 1 ? "text-blue-600" : ''}>active</button>
-                <button onClick={() => handleButtonIndex(2)} className={currentIndex === 2 ? "text-blue-600" : ''}>completed</button>
-            </div>
+            <p className="text-[#5e606e] text-xs md:text-base mt-8">Drag and drop to reorder list</p>
         </div>
     )
 }
